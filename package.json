@@ -13,24 +13,23 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "db:generate": "pnpm --filter @bus/db db:generate",
+    "db:push": "pnpm --filter @bus/db db:push",
+    "db:migrate": "pnpm --filter @bus/db db:migrate",
+    "db:studio": "pnpm --filter @bus/db db:studio",
+    "db:seed": "tsx packages/db/prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
-    "@supabase/supabase-js": "^2.45.0",
     "@supabase/ssr": "^0.5.0",
+    "@supabase/supabase-js": "^2.45.0",
     "@tanstack/react-query": "^5.56.0",
     "mapbox-gl": "^3.7.0",
     "next": "15.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "zustand": "^4.5.0",
-    "zod": "^3.23.0"
+    "zod": "^3.23.0",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.47.0",
@@ -40,6 +39,7 @@
     "@types/node": "^22.5.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "5",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.10.0",
     "eslint-config-next": "15.0.0",

@@ -20,6 +20,7 @@ model User {
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   bookings      Booking[]
+  bookedSlots   Slot[]    @relation("SlotBookedBy")
   idDeclarations IdDeclaration[]
 
   @@map("users")
@@ -76,6 +77,8 @@ model Stop {
 
   routeStops    RouteStop[]
   slots         Slot[]
+  fromBookings  Booking[] @relation("BookingFromStop")
+  toBookings    Booking[] @relation("BookingToStop")
 
   @@index([lat, lng])
   @@map("stops")
@@ -111,7 +114,7 @@ model Slot {
 
   bus           Bus         @relation(fields: [busId], references: [id])
   stop          Stop        @relation(fields: [stopId], references: [id])
-  bookedBy      User?       @relation(fields: [bookedById], references: [id])
+  bookedBy      User?       @relation("SlotBookedBy", fields: [bookedById], references: [id])
   booking       Booking?
 
   @@index([busId, status])
@@ -139,8 +142,8 @@ model Booking {
   bus           Bus           @relation(fields: [busId], references: [id])
   route         Route         @relation(fields: [routeId], references: [id])
   slot          Slot?         @relation(fields: [slotId], references: [id])
-  fromStop      Stop          @relation(fields: [fromStopId], references: [id])
-  toStop        Stop          @relation(fields: [toStopId], references: [id])
+  fromStop      Stop          @relation("BookingFromStop", fields: [fromStopId], references: [id])
+  toStop        Stop          @relation("BookingToStop", fields: [toStopId], references: [id])
   idDeclaration IdDeclaration?
 
   @@index([userId, status])

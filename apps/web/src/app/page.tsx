@@ -159,4 +159,34 @@ export default function HomePage() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="/help" className="hover:text-white">Trung tâm trợ giúp</Link></li>
                 <li><Link href="/faq" className="hover:text-white">Câu hỏi thường gặp</Link></li>
-    
+                <li><Link href="/contact" className="hover:text-white">Liên hệ</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-white mb-4">Pháp lý</h4>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/privacy" className="hover:text-white">Chính sách bảo mật</Link></li>
+                <li><Link href="/terms" className="hover:text-white">Điều khoản sử dụng</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm">
+            © 2024 BusGo. All rights reserved.
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4">
+        {icon}
+      </div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-600">{description}</p>
+    </div>
+  );
+}
