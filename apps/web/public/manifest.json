@@ -1,0 +1,42 @@
+{
+  "name": "BusGo - Hệ thống xe buýt thông minh",
+  "short_name": "BusGo",
+  "description": "Theo dõi xe buýt real-time, đặt chỗ, khai báo thân danh",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["travel", "navigation"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Bản đồ xe buýt",
+      "short_name": "Bản đồ",
+      "description": "Xem vị trí xe buýt real-time",
+      "url": "/map",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Đặt chỗ",
+      "short_name": "Đặt chỗ",
+      "description": "Đặt chỗ ngồi trên xe buýt",
+      "url": "/booking",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

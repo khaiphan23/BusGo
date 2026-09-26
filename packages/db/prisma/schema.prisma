@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  supabaseId    String    @unique @map("supabase_id")
+  email         String?   @unique
+  phone         String?   @unique
+  fullName      String?   @map("full_name")
+  avatarUrl     String?   @map("avatar_url")
+  role          Role      @default(PASSENGER)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  bookings      Booking[]
+  idDeclarations IdDeclaration[]
+
+  @@map("users")
+}
+
+model Bus {
+  id            String    @id @default(cuid())
+  licensePlate  String    @unique @map("license_plate")
+  capacity      Int
+  currentLat    Float     @map("current_lat")
+  currentLng    Float     @map("current_lng")
+  heading       Float?
+  speed         Float?
+  status        BusStatus @default(ACTIVE)
+  routeId       String    @map("route_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  route         Route     @relation(fields: [routeId], references: [id])
+  bookings      Booking[]
+  slots         Slot[]
+  positions     BusPosition[]
+
+  @@index([currentLat, currentLng])
+  @@map("buses")
+}
+
+model Route {
+  id            String    @id @default(cuid())
+  name          String
+  code          String    @unique
+  description   String?
+  color         String    @default("#3B82F6")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  buses         Bus[]
+  stops         RouteStop[]
+  bookings      Booking[]
+
+  @@map("routes")
+}
+
+model Stop {
+  id            String    @id @default(cuid())
+  name          String
+  lat           Float
+  lng           Float
+  address       String?
+  stopCode      String?   @unique @map("stop_code")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  routeStops    RouteStop[]
+  slots         Slot[]
+
+  @@index([lat, lng])
+  @@map("stops")
+}
+
+model RouteStop {
+  id            String    @id @default(cuid())
+  routeId       String    @map("route_id")
+  stopId        String    @map("stop_id")
+  sequence      Int
+  estimatedTime Int?      @map("estimated_time") // minutes from start
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  route         Route     @relation(fields: [routeId], references: [id])
+  stop          Stop      @relation(fields: [stopId], references: [id])
+
+  @@unique([routeId, stopId])
+  @@unique([routeId, sequence])
+  @@map("route_stops")
+}
+
+model Slot {
+  id            String      @id @default(cuid())
+  busId         String      @map("bus_id")
+  stopId        String      @map("stop_id")
+  sequence      Int
+  status        SlotStatus  @default(AVAILABLE)
+  bookedById    String?     @map("booked_by_id")
+  bookedAt      DateTime?   @map("booked_at")
+  expiresAt     DateTime?   @map("expires_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  bus           Bus         @relation(fields: [busId], references: [id])
+  stop          Stop        @relation(fields: [stopId], references: [id])
+  bookedBy      User?       @relation(fields: [bookedById], references: [id])
+  booking       Booking?
+
+  @@index([busId, status])
+  @@index([stopId, status])
+  @@map("slots")
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  userId        String        @map("user_id")
+  busId         String        @map("bus_id")
+  routeId       String        @map("route_id")
+  slotId        String?       @unique @map("slot_id")
+  fromStopId    String        @map("from_stop_id")
+  toStopId      String        @map("to_stop_id")
+  status        BookingStatus @default(PENDING)
+  bookedAt      DateTime      @default(now()) @map("booked_at")
+  confirmedAt   DateTime?     @map("confirmed_at")
+  cancelledAt   DateTime?     @map("cancelled_at")
+  completedAt   DateTime?     @map("completed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  user          User          @relation(fields: [userId], references: [id])
+  bus           Bus           @relation(fields: [busId], references: [id])
+  route         Route         @relation(fields: [routeId], references: [id])
+  slot          Slot?         @relation(fields: [slotId], references: [id])
+  fromStop      Stop          @relation(fields: [fromStopId], references: [id])
+  toStop        Stop          @relation(fields: [toStopId], references: [id])
+  idDeclaration IdDeclaration?
+
+  @@index([userId, status])
+  @@index([busId, status])
+  @@map("bookings")
+}
+
+model BusPosition {
+  id          String   @id @default(cuid())
+  busId       String   @map("bus_id")
+  lat         Float
+  lng         Float
+  heading     Float?
+  speed       Float?
+  recordedAt  DateTime @default(now()) @map("recorded_at")
+
+  bus         Bus      @relation(fields: [busId], references: [id])
+
+  @@index([busId, recordedAt])
+  @@map("bus_positions")
+}
+
+model IdDeclaration {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  bookingId     String?  @unique @map("booking_id")
+  fullName      String   @map("full_name")
+  idNumber      String   @map("id_number") // CCCD/VNeID
+  idType        IdType   @map("id_type")
+  frontImageUrl String?  @map("front_image_url")
+  backImageUrl  String?  @map("back_image_url")
+  status        IdStatus @default(PENDING)
+  verifiedAt    DateTime? @map("verified_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user          User     @relation(fields: [userId], references: [id])
+  booking       Booking? @relation(fields: [bookingId], references: [id])
+
+  @@index([userId, status])
+  @@map("id_declarations")
+}
+
+enum Role {
+  PASSENGER
+  DRIVER
+  ADMIN
+}
+
+enum BusStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+  OFFLINE
+}
+
+enum SlotStatus {
+  AVAILABLE
+  BOOKED
+  OCCUPIED
+  EXPIRED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum IdType {
+  CCCD
+  VNEID
+  PASSPORT
+}
+
+enum IdStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
