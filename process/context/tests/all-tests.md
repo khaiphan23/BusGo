@@ -105,7 +105,7 @@ pnpm lint:fix          # auto-fix
 | `packages/db` | vitest | `pnpm test` | needs Supabase local/test DB |
 | `packages/ui` | vitest | `pnpm test` | component tests |
 | `packages/validators` | vitest | `pnpm test` | Zod schema tests |
-| `apps/web` (e2e) | Playwright | `pnpm test:e2e` | needs dev server running on port 3000 |
+| `apps/web` (e2e) | Playwright | `pnpm test:e2e` | needs dev server on port 3100 (Playwright `webServer` handles this) |
 
 ## Debugging Quick Reference
 
@@ -114,16 +114,16 @@ pnpm lint:fix          # auto-fix
 - **database state:** Supabase local development (`supabase start`) or test project. Prisma migrations applied before tests.
 - **auth mocking:** Supabase Auth mocked via `@supabase/supabase-js` mock or test user tokens.
 - **realtime mocking:** Supabase Realtime channels mocked in unit tests; E2E tests use real Supabase Realtime.
-- **port conflicts:** dev server must be stopped before running e2e tests (both use port 3000). Playwright config handles this.
+- **port conflicts:** Playwright `webServer` starts `next dev --port 3100` itself; stop any manual dev server on 3100 before running e2e tests.
 - **map mocking:** Mapbox GL JS mocked in unit tests with `vi.mock('mapbox-gl')`.
 - **PWA/service worker:** Service worker registration mocked in unit tests; tested in E2E.
 
 ## Known Gaps
 
-- No tests exist yet (fresh project)
-- Supabase local development setup needed for integration tests
-- Real-time subscription testing patterns not established
-- Mapbox GL JS interaction testing not established
-- PWA offline behavior testing not established
-- Geospatial query testing not established
+- Baseline established 05-10-26 (map + auth work): Vitest 135/135 (16 files, incl. axe a11y audits + marker perf budget), Playwright 18/18 (desktop + mobile Chromium on port 3100)
+- Supabase local development setup still needed for DB-backed integration tests (unit tests mock Realtime channels; E2E uses real Supabase Realtime)
+- Real-time subscription testing pattern: established — mocked-channel unit tests (`hooks.test.tsx`) + realtime INSERT push E2E (`map.spec.ts`)
+- Mapbox GL JS testing pattern: established — `vi.mock('mapbox-gl')` in unit tests, real rendering in Playwright E2E
+- PWA offline testing pattern: established — `pwa.test.ts` unit + Playwright offline probe
+- Geospatial query testing not established (PostGIS `ST_DWithin` paths untested)
 - VNeID/CCCD API integration testing not established (future)
