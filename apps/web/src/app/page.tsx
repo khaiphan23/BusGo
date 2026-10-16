@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
@@ -40,17 +41,7 @@ export default function HomePage() {
                 Đặt chỗ
               </Link>
             </nav>
-            <div className="flex items-center gap-4">
-              <Link href="/login" className="text-gray-600 hover:text-primary font-medium">
-                Đăng nhập
-              </Link>
-              <Link
-                href="/register"
-                className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-hover transition-colors"
-              >
-                Đăng ký
-              </Link>
-            </div>
+            <UserMenu />
           </div>
         </div>
       </header>
