@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "dev": "pnpm --filter bus-transport-system-web dev",
+    "build": "pnpm --filter bus-transport-system-web build",
+    "start": "pnpm --filter bus-transport-system-web start",
+    "lint": "pnpm --filter bus-transport-system-web lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -32,9 +32,11 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.47.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.0",
+    "@types/geojson": "^7946.0.16",
     "@types/mapbox-gl": "^3.4.0",
     "@types/node": "^22.5.0",
     "@types/react": "^18.3.0",
