@@ -174,4 +174,20 @@ describe('RegisterForm', () => {
     expect(screen.getByTestId('register-error')).not.toHaveTextContent('already registered');
     expect(screen.queryByTestId('confirmation-sent')).not.toBeInTheDocument();
   });
+
+  it('shows the rate-limit alert when signup hits the email rate limit', async () => {
+    authMock.signUp.mockResolvedValue({
+      data: { user: null, session: null },
+      error: { code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' },
+    });
+    const { form } = renderForm();
+    fillValidForm();
+
+    fireEvent.submit(form);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('register-error')).toHaveTextContent(authErrorMessages.rateLimit);
+    });
+    expect(screen.queryByTestId('confirmation-sent')).not.toBeInTheDocument();
+  });
 });

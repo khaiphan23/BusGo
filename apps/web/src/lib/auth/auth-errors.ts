@@ -5,6 +5,7 @@ export const authErrorMessages = {
   login: 'Email hoặc mật khẩu không đúng.',
   otp: 'Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
   recoveryRequest: 'Nếu email tồn tại, chúng tôi đã gửi hướng dẫn. Vui lòng kiểm tra hộp thư.',
+  rateLimit: 'Thao tác quá nhanh, vui lòng thử lại sau.',
   generic: 'Đã xảy ra lỗi. Vui lòng thử lại.',
   invalidLink: 'Liên kết xác thực không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.',
 } as const;
@@ -27,6 +28,12 @@ const OTP_CODES = new Set([
   'refresh_token_not_found',
 ]);
 
+const RATE_LIMIT_CODES = new Set([
+  'over_email_send_rate_limit',
+  'over_request_rate_limit',
+  'over_sms_send_rate_limit',
+]);
+
 function readError(error: unknown): { code: string; message: string } {
   if (error !== null && typeof error === 'object') {
     const candidate = error as Partial<AuthError>;
@@ -40,6 +47,14 @@ function readError(error: unknown): { code: string; message: string } {
 
 export function mapAuthError(error: unknown, kind: AuthErrorKind = 'generic'): string {
   const { code, message } = readError(error);
+
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('[auth]', code || '(no code)', message);
+  }
+
+  if (RATE_LIMIT_CODES.has(code) || /rate limit|too many requests/i.test(message)) {
+    return authErrorMessages.rateLimit;
+  }
 
   if (kind === 'login') {
     return LOGIN_CODES.has(code) || /invalid credentials/i.test(message)

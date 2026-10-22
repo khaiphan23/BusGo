@@ -111,7 +111,7 @@ describe('VerifyOtpForm', () => {
     navMock.search = '?email=an%40busgo.vn';
     authMock.signInWithOtp.mockResolvedValue({
       data: { user: null },
-      error: { code: 'over_email_send_rate_limit', message: 'Rate limit' },
+      error: { code: 'unexpected_failure', message: 'Request failed' },
     });
     renderForm();
 

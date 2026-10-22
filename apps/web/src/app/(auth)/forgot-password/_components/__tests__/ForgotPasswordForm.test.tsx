@@ -55,7 +55,7 @@ describe('ForgotPasswordForm', () => {
 
   it('shows a generic alert when the request fails', async () => {
     authMock.resetPasswordForEmail.mockResolvedValue({
-      error: { code: 'over_email_send_rate_limit', message: 'Rate limit exceeded' },
+      error: { code: 'unexpected_failure', message: 'Request failed' },
     });
     const { container } = render(<ForgotPasswordForm />);
     const form = container.querySelector('form')!;
@@ -66,7 +66,7 @@ describe('ForgotPasswordForm', () => {
     await waitFor(() => {
       expect(screen.getByTestId('forgot-error')).toHaveTextContent(authErrorMessages.generic);
     });
-    expect(screen.getByTestId('forgot-error')).not.toHaveTextContent('Rate limit');
+    expect(screen.getByTestId('forgot-error')).not.toHaveTextContent('Request failed');
     expect(screen.queryByTestId('recovery-sent')).not.toBeInTheDocument();
   });
 

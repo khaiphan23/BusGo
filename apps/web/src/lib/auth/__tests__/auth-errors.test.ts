@@ -36,6 +36,24 @@ describe('mapAuthError', () => {
     expect(result).not.toContain('secret-detail');
     expect(result).toBe(authErrorMessages.login);
   });
+
+  it('maps rate-limit codes to the rate-limit message regardless of kind', () => {
+    expect(
+      mapAuthError({ code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' }, 'generic')
+    ).toBe(authErrorMessages.rateLimit);
+  });
+
+  it('prioritises rate-limit mapping over the login branch', () => {
+    expect(
+      mapAuthError({ code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' }, 'login')
+    ).toBe(authErrorMessages.rateLimit);
+  });
+
+  it('falls back to rate-limit mapping from the message alone', () => {
+    expect(mapAuthError({ code: undefined, message: 'Email rate limit exceeded' })).toBe(
+      authErrorMessages.rateLimit
+    );
+  });
 });
 
 describe('zodFieldErrors', () => {

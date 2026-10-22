@@ -169,6 +169,58 @@ When specialized help is needed beyond the core RIPER modes, prefer discovering 
 standalone capability by checking the `.agents/skills/` directory rather than expanding the
 base protocol for every niche workflow.
 
+### Coding Discipline (Ponytail: lazy senior dev mode)
+
+Applies to every agent that writes or edits code: `vc-execute-agent`, `vc-fast-mode-agent`, `vc-quick-fix-agent`, `vc-debugger` (when fixing), `vc-code-simplifier`. The orchestrator does not write code, so it attaches this section to the prompt whenever it delegates code work instead of applying it itself.
+
+Precedence: RIPER-5 gates decide *whether and when* code may be written; Ponytail decides *how much*. "Lazy" is about the solution, never about skipping a phase, an approval, or a verification step. The "Never cut" list below overrides laziness.
+
+The best code is the code never written. Solve the whole problem with the least new code.
+
+#### Before you write
+
+Read the task and the code it touches. List every place your change must reach: callers, tests, fixtures, config, exports. Check what your change could break for users: data it would destroy or expose, callers that stop working. That is scope. Extra features are not.
+
+#### The smallest complete change
+
+Take the first option that fully works:
+
+1. Does it need to exist? Skip features, options and flexibility nobody asked for, and name them in one line. A vague request ("build me X") gets the smallest version that does the core job.
+2. Already in this codebase (a helper, component, service, pattern)? Use it the way the surrounding code does.
+3. Standard library or a platform feature? Use it, unless the project has its own. A house component beats a native widget.
+4. An installed dependency? Use it. Never add a dependency for a few lines.
+5. Can it be one line a reader gets at a glance? One line.
+6. Otherwise: the minimum code that works.
+
+- Be lazy about the solution, never about the change itself: finish every part the task needs, including the callers, tests and fixtures your change breaks.
+- No abstraction, wrapper, type conversion, option, config, boilerplate or "for later" code nobody asked for. Keep values in the form the platform already gives you. Deletion beats addition. Keep the structure the codebase already has: its layers, interfaces and conventions.
+- The shortest working diff wins, once you know everything it must touch. A one-liner that needs decoding is not short.
+- Comment only the why the code cannot show, in one line.
+- Bug fix: before you edit, grep every caller of the function you touch, then fix the root cause once in the shared code.
+- Code you move or merge keeps its error handling and validation.
+- Between options of equal size, take the one that is correct on edge cases.
+- Lazy code without its check is unfinished: new non-trivial logic (a branch, a loop, a parser, money or security, or a whole new script or app) leaves one small test or an assert-based self-check. Trivial changes need none (use the "Trivial definition" in Routing Protocol §1).
+- A shortcut with a known limit gets a code comment in this form: `shortcut: <the limit>, <when to upgrade>`.
+
+#### Never cut
+
+Validation at trust boundaries, error handling that prevents data loss, security, accessibility, the calibration real hardware needs, anything the user asked for.
+
+#### Ponytail inside RIPER-5
+
+| Phase | Ponytail rule that applies |
+|---|---|
+| RESEARCH | "Before you write": list every place the change must reach and what it could break. This feeds the plan's touchpoints and blast radius. |
+| INNOVATE | Use the ladder (skip, reuse, stdlib, installed dependency) as a filter; "build new" options need a reason. |
+| PLAN | Plan the smallest complete change. Skipped features go in as one-line non-goals. Every touchpoint found in RESEARCH gets a step (callers, tests, fixtures). |
+| VALIDATE | Non-trivial new logic has a small test or assert-based self-check; known shortcuts carry the `shortcut:` comment. |
+| EXECUTE | Apply the ladder. Bug fix: grep every caller, fix the root cause once. Moved code keeps its validation. |
+| QUICK FIX / FAST MODE | Ponytail is the default behavior. |
+
+#### Closing lines
+
+End every code-writing reply with one or two lines: what you skipped or did not check, and any risk the user must know. In an explicit RIPER-5 workflow these lines follow the `[MODE: ...]` body, and after EXECUTE they also feed the closeout packet below.
+
 ### Technology Stack
 
 See `process/context/all-context.md` for project technology stack, structure, and key technologies.
@@ -581,6 +633,7 @@ EXECUTE -> UPDATE PROCESS:
   - closeout classification
   - what was finished
   - what was verified versus still unverified
+  - what was skipped or not checked, and any risk the user must know (Ponytail closing lines)
   - what cleanup/context capture remains
   - uncommitted file count and git-manager offer (when worktree is dirty)
   - commit-checkpoint recommendation:
@@ -631,6 +684,7 @@ Each mode has strict boundaries:
 - Pass only relevant files
 - Summarize rather than duplicate
 - Reuse existing plans and context
+- Prefer the smallest complete change (see Coding Discipline)
 
 ## Success Metrics
 
